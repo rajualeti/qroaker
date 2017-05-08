@@ -1,0 +1,13 @@
+<?php $__env->startSection('content'); ?>
+	<div id="wrapper">
+		<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+			<?php echo $__env->make('admin::_partials.header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+			<?php echo $__env->make('admin::_partials.user', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+			<?php echo $__env->make('admin::_partials.menu', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+		</nav>
+		<div id="page-wrapper">
+			<?php echo $__env->yieldContent('innerContent'); ?>
+		</div>
+	</div>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin::_layout.base', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

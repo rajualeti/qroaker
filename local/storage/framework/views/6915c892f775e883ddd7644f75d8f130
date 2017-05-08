@@ -1,0 +1,392 @@
+<?php $__env->startSection('title', 'Users'); ?>
+<?php $__env->startSection('content'); ?>
+	
+<!-- Content starts here-->
+<div class="container main-bg">
+	<?php if(session()->has('success_message')): ?>
+  		<div class="alert alert-success" role="alert"><span class="result"><?php echo e(session('success_message')); ?></span></div>
+ 	<?php else: ?>
+ 		<div class="alert alert-success" role="alert" style="display:none;"><span class="result"></span></div>
+ 	<?php endif; ?>
+ 	
+    <div class="alert alert-danger" role="alert" style="display:none;"><span class="result"></span></div>
+    
+	<div class="row">
+
+		<div class="col-md-12">
+
+        	<div class="headings-h2">
+                <h2><?php echo e(trans('labels.users')); ?></h2>
+				
+		        <div class="find-truck-icns">
+		        
+		        <div id="search_1">
+		        	<input class="search clearable" placeholder="Search" id="table_search" type="text">
+			    </div>
+			 		<?php if(Auth::user()->can('create-user')|| Auth::user()->hasRole('admin')): ?>
+			        	<a href="<?php echo e(url('users/create')); ?>"><i class="fa fa-plus"></i> New User</a>
+			       	<?php endif; ?>
+				</div>
+			</div>
+
+		</div> 
+
+	</div>                
+
+	<div class="clearfix"></div>
+
+	<div class="col-md-12 no-pad">
+
+		<div class="qroak-div">
+
+			<table class="footable searchable" >
+
+                <thead>
+                    <tr>
+                        <th class="expand"></th>
+                        <th></th>
+                        <th data-hide="phone,tablet"></th>
+                        <th data-hide="phone"></th>
+                        <th data-hide="phone"></th>
+                        <th data-hide="phone"></th>
+                        <th></th>
+                    </tr>
+				</thead>
+
+                <tbody>
+                <?php if(count($users) > 0): ?>
+					<?php foreach($users as $user): ?>
+		            	<tr class="load-more" id="row_<?php echo e($user->id); ?>">
+		
+		                	<td class="expand footable-first-column">
+		                    	<?php if(!empty($user->image)): ?>
+		                		<img src="<?php echo e(url($user->image)); ?>" class="profile-image" alt="Profile Image">
+		                		<?php else: ?>
+		                		<img src="<?php echo e(url('img/default-user.png')); ?>" class="profile-image" alt="Profile Image">
+		                		<?php endif; ?>
+	                    	</td>
+		
+							<td><div style="text-align:left;">
+	                    		<a data-original-title="<?php echo e($user->name); ?>" href="<?php echo e(url('users/'.$user->id)); ?>" title="" data-toggle="tooltip" data-placement="bottom"><?php echo e($user->name); ?></a>
+								<br><span class="btm-txt"><label><?php echo e($user->id); ?> | <?php echo e(gender($user->gender)); ?> </label></span></div></td>
+	
+	                    	<td><div><?php echo e($user->mobile); ?><br><span class="btm-txt"><label><?php echo e($user->email); ?></label></span></div></td>
+	
+	                    	<td><div><?php echo e($user->location); ?></div></td>
+	
+	                    	<td>
+		                    	<?php if(Auth::user()->hasRole('admin') || (Auth::user()->can('edit-user')  && (Auth::id() == $user->user_id || Auth::user()->user_type == 1))): ?>
+		                    		<a href="<?php echo e(url('users/'.$user->id.'/edit')); ?>"><i class="fa fa-pencil custom"></i></a>
+		                    	<?php endif; ?>
+	                    	</td>
+			                    		                 
+							<td>
+								<?php if(Auth::user()->can('delete-user')|| Auth::user()->hasRole('admin')): ?>
+									<a href="javascript:void(0);" data-toggle="modal" data-target="#modal_delete_user_<?php echo $user->id; ?>"><i class="fa fa-remove custom"></i></a>
+								<?php endif; ?>
+							</td>
+							
+							<td class="footable-last-column">
+								<ul class="nav navbar-right drops">
+						       		<li class="dropdown user-box"><a aria-expanded="false" href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
+										<ul class="dropdown-menu dropdown-user">
+				                    		<?php if(Auth::user()->hasRole('admin') || Auth::user()->can('view-users')): ?>
+				                    			<li><a href="<?php echo e(url('users/'.$user->id)); ?>"><i class="fa fa-user"></i> Profile</a></li>
+				                    		<?php endif; ?>
+				                    		
+					                    	<?php if(Auth::user()->hasRole('admin') || Auth::user()->can('reset-user-password')): ?>
+												<li><a href="javascript:void(0);" data-toggle="modal" data-target="#reset_password_confirmation_modal_<?php echo e($user->id); ?>"><i class="fa fa-key"></i> Reset Password</a></li>
+											<?php endif; ?>
+											
+											<?php if(Auth::user()->can('block-user') || Auth::user()->hasRole('admin')): ?>
+											<li>
+												<?php if($user->status == 1): ?>
+													<a href="javascript:void(0);" data-toggle="modal" data-target="#inactivate_user_confirmation_modal_<?php echo e($user->id); ?>"><i class="fa fa-lock"></i> Block User</a>
+												<?php else: ?>
+													<a href="javascript:void(0);" data-toggle="modal" data-target="#activate_user_confirmation_modal_<?php echo e($user->id); ?>"><i class="fa fa-unlock"></i> Unblock User</a>
+												<?php endif; ?>
+											</li>
+											<?php endif; ?>
+										</ul>
+									</li>
+								</ul>
+								
+								<!-- password reset modal -->
+								<div class="modal fade bs-example-modal-md" id="reset_password_confirmation_modal_<?php echo e($user->id); ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+								  <div class="modal-dialog modal-md">
+								    <div class="modal-content">
+								   
+								     <div class="text-center modal-body">
+								     	<h4  style="text-align: center; line-height: 24px;"> Are you sure you want to Reset Password? </h4>
+									</div>
+									<div class="modal-footer modal-footer-confirm">
+									
+								        <input type="button" value="<?php echo e(trans('labels.modal_btn_no')); ?>" class="btn btn-no js__p_close" data-dismiss="modal">&nbsp;&nbsp;&nbsp;&nbsp;
+								        <button type="button" onclick="resetPassword(<?php echo e($user->id); ?>)" class="btn btn-yes" data-dismiss="modal"><?php echo e(trans('labels.modal_btn_yes')); ?></button>
+								
+								     </div>
+								    </div>
+								  </div>
+								</div>
+								<!-- password reset  modal -->
+								
+								<!-- confirmation active user modal  -->
+								<div class="modal fade bs-example-modal-md" id="activate_user_confirmation_modal_<?php echo e($user->id); ?>" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+					         		<div class="modal-dialog modal-md" role="document">
+						             	<div class="modal-content" >
+										   
+										     <div class="text-center modal-body">
+										     	<h4  style="text-align: center;line-height: 24px;">Are you sure you want to Activate  <br> "<?php echo $user->name; ?>" ?</h4>
+											</div>
+											<div class="modal-footer modal-footer-confirm">
+											
+										       <input type="button" value="<?php echo e(trans('labels.modal_btn_no')); ?>" class="btn btn-no js__p_close" data-dismiss="modal">&nbsp;&nbsp;&nbsp;
+										       <button type="button" onclick="unblockUser(<?php echo e($user->id); ?>)" class="btn btn-yes" data-dismiss="modal"><?php echo e(trans('labels.modal_btn_yes')); ?></button>
+										
+										     </div>
+										 </div>
+					                </div>
+								 </div>
+								 <!-- confirmation active user modal -->
+								 				
+								
+								 <!-- confirmation user inactive modal  -->
+								 <div class="modal fade bs-example-modal-md" id="inactivate_user_confirmation_modal_<?php echo e($user->id); ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+								  <div class="modal-dialog modal-md">
+								    <div class="modal-content" >
+								   
+								     <div class="text-center modal-body">
+								     	<h4  style="text-align: center;line-height: 24px;">Are you sure you want to Inactivate <br> "<?php echo $user->name; ?>" ? </h4>
+									 </div>
+									 <div class="modal-footer modal-footer-confirm">
+								       	 <input type="button" value="<?php echo e(trans('labels.modal_btn_no')); ?>" class="btn btn-no js__p_close" data-dismiss="modal">&nbsp;&nbsp;&nbsp;&nbsp;
+								       	 <button type="button" data-toggle="modal" data-target="#inactive_user_modal_<?php echo e($user->id); ?>" class="btn btn-yes" data-dismiss="modal"><?php echo e(trans('labels.modal_btn_yes')); ?></button>
+								     </div>
+								    </div>
+								  </div>
+								</div>
+								<!-- End of user inactive confirmation modal -->
+								
+								
+								<!-- user inactive modal -->
+								<div class="modal fade" id="inactive_user_modal_<?php echo e($user->id); ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+									<div class="modal-dialog modal-md" role="document">
+										<div class="modal-content">
+											<div class="modal-header"> <a href="#" class="p_close js__p_close" title="Close" data-dismiss="modal"></a>
+												<h4 class="modal-title modal-title-confirm" id="myModalLabel">Inactivate user</h4>
+											</div>
+											<div class="modal-body">
+												<form class="form-horizontal" role="form">
+													<span id="blocked_msg"></span>
+													<div class="form-group">
+														<label class="col-md-4 control-label">Reason</label>
+														<div class="col-md-6">
+															<select id="blocked_reason_id_<?php echo e($user->id); ?>" class="form-control">
+													        	<option value="">Select Reason</option>
+													        	<?php if(count($block_user_reasons) > 0): ?>
+																	<?php foreach($block_user_reasons as $reason): ?>
+																	<option value="<?php echo e($reason->reason_id); ?>"><?php echo e($reason->reason); ?></option>
+																	<?php endforeach; ?>
+																<?php endif; ?>
+														    </select>
+														</div>
+													</div>
+													<div class="form-group">
+														<label class="col-md-4 control-label">Description</label>
+														<div class="col-md-6">
+															<textarea id="blocked_desc_<?php echo e($user->id); ?>" class="form-control" maxlength="<?php echo config('constants.additional-info-limit'); ?>" placeholder="Enter description"></textarea>
+														</div>
+													</div>
+												</form>
+											</div>
+											<div class="modal-footer modal-footer-confirm">
+											<div class="col-md-6 col-xs-6 text-right">
+												<input type="button" value="<?php echo e(trans('labels.modal_btn_no')); ?>" class="btn btn-no js__p_close" data-dismiss="modal">
+											</div>
+											<div class="col-md-3 col-xs-3">	
+												<button type="button" onclick="blockUser(<?php echo e($user->id); ?>)" class="inactive-user btn btn-yes"><?php echo e(trans('labels.modal_btn_yes')); ?></button>
+											</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- End of user inactive modal -->
+											
+		
+								<!-- Delete modal -->
+								<div class="modal fade bs-example-modal-md" id="modal_delete_user_<?php echo $user->id; ?>" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+									<div class="modal-dialog modal-md" role="document">
+										<div class="modal-content">
+											<div class="text-center modal-body">
+												<h5>Are you sure you want to delete<strong> <?php echo $user->company_name; ?></strong>?</h5>
+											</div>
+											<div class="modal-footer modal-footer-confirm">
+												<input type="button" value="<?php echo e(trans('labels.modal_btn_no')); ?>" class="btn btn-no js__p_close" data-dismiss="modal">
+												<button type="button" class="btn btn-yes" onclick="deleteUser(<?php echo e($user->id); ?>)" data-dismiss="modal"><?php echo e(trans('labels.modal_btn_yes')); ?></button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- Delete modal End -->
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				<?php else: ?> 
+					<tr><td colspan="7"><?php echo e(trans('labels.no_results_found')); ?></td></tr>
+				<?php endif; ?>
+                </tbody>
+
+			</table>
+			 <?php if($users): ?>
+				<?php echo str_replace('/?', '?',  $users->render()); ?>
+
+			 <?php endif; ?>
+		</div>
+
+	</div>
+</div>
+<script type="text/javascript">
+
+function deleteUser(id) {
+	
+	$('.alert-success').hide();
+	$('.alert-danger').hide();
+
+	$.ajax({
+      url: "<?php echo e(url('users').'/'); ?>"+id ,
+      type: 'DELETE',
+      beforeSend: function (xhr) {
+            var token = $('meta[name="csrf_token"]').attr('content');
+            if (token) {
+                  return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+            }
+        },
+        success: function( msg ) {
+            if ( msg.status === 'success' ) {
+				$('#row_'+id).fadeOut(1000,function(){
+					$('#row_'+id).remove();
+					$('.alert-success .result').text(msg.msg);
+					$('.alert-success').show();
+				}); 
+            }
+            else
+            {
+				$('.alert-danger .result').text(msg.msg);
+	        	$('.alert-danger').show();
+			}
+
+        },
+        error: function( msg ) {
+			$('.alert-danger .result').text('Something went wrong');
+			$('.alert-danger').show();
+        }
+	});
+}
+
+function blockUser(id) {
+	 
+	var reason_id = $("#blocked_reason_id_"+id).val();
+	var desc = $("#blocked_desc_"+id).val();
+	  
+	if(reason_id  == '' || desc  == ''){
+		$("#blocked_msg").html("<div class='alert alert-danger'>Please fill all the details.</div>");
+	}
+	else{
+		$("#blocked_msg").html("");
+
+		$.ajax({
+			
+			url: "<?php echo e(url('block-user')); ?>/"+id,
+	        type: 'POST',
+	        beforeSend: function (xhr) {
+	              var token = $('meta[name="csrf_token"]').attr('content');
+
+	              if (token) {
+	                    return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+	              }
+			},
+	        data:{ reason_id : reason_id, desc : desc},
+	        success: function( data ) {
+	        	if(data.status === 'error')
+		        {
+		        	$("#blocked_msg").html("<div class='alert alert-danger'>"+data.msg+"</div>");
+			    }
+				else
+		        {
+					$("#blocked_msg").html("<div class='alert alert-success'>"+data.msg+"</div>");
+					window.setTimeout(function(){ window.location.reload(); }, 1000);
+				}
+			},
+			error: function( data ) {
+	        	$("#blocked_msg").html("<div class='alert alert-danger'>Something went wrong</div>");
+			}
+		});
+	}
+}
+
+
+function unblockUser(id) {
+
+	$('.alert-success').hide();
+	$('.alert-danger').hide();
+	
+	$.ajax({
+		url: "<?php echo e(url('unblock-user')); ?>/"+id,
+        type: 'POST',
+        beforeSend: function (xhr) {
+              var token = $('meta[name="csrf_token"]').attr('content');
+
+              if (token) {
+                    return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+              }
+          },
+          success: function( data ) {
+        	  if(data.status === 'error')
+	            {
+ 					$('.alert-danger .result').text(data.msg);
+  	        		$('.alert-danger').show();
+		        }
+	            else
+	            {
+	            	$('.alert-success .result').text(data.msg);
+					$('.alert-success').show();
+	            	window.setTimeout(function(){ window.location.reload(); }, 1000);
+		        }
+          },
+          error: function( data ) {
+        	  $("#inactive_user_error_msg").html("<label class='alert alert-danger'>Error in request.</label>");
+          }
+          
+	});
+		 
+}
+
+function resetPassword(id){
+	$.ajax({
+		url: '<?php echo e(URL("reset-password")); ?>/'+id,
+	    type: 'POST',
+		beforeSend: function (xhr) {
+        	var token = $('meta[name="csrf_token"]').attr('content');
+	        if (token) {
+	        	return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+			}
+		},
+		success: function( data ) {
+        	if(data.status === 'error') {
+        		$('.alert-danger .result').text(data.msg);
+            	$('.alert-danger').show();
+        	} else {
+        		$('.alert-success .result').text(data.msg);
+	        	$('.alert-success').show();
+            }
+		},
+        error: function( data ) {
+        	$('.alert-danger .result').text('Error in ajax request');
+        	$('.alert-danger').show();
+        }
+	});
+}
+
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('app', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
