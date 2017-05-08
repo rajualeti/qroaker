@@ -62,17 +62,17 @@ if (!function_exists('location')) {
 }
 
 
-if (!function_exists('print_array_exit')) {
+if (!function_exists('dd_array')) {
 
-	function print_array_exit($array)
+	function dd_array($array)
 	{
 		echo "<pre>";print_r($array);exit;
 	}
 }
 
-if (!function_exists('print_json_exit')) {
+if (!function_exists('dd_json')) {
 
-	function print_json_exit($array)
+	function dd_json($array)
 	{
 		echo json_encode($array);exit;
 	}

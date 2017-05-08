@@ -42,4 +42,4 @@ Route::post('reset-password/{id}', 'HomeController@resetPassword');
 Route::get('change-password', 'HomeController@changePassword');
 Route::post('update-password', 'HomeController@updatePassword');
 
-Route::post('test-route-created', 'HomeController@index');
+Route::post('like-qroak/{qroak_id}', 'QroakController@like');

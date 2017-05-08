@@ -157,5 +157,12 @@ class QroakController extends Controller {
 	{
 		//
 	}
+	
+	public function like($id)
+	{
+		$data = Input::all();
+		
+		dd_array($data);
+	}
 
 }
